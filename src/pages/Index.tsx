@@ -2,9 +2,23 @@ import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import Icon from '@/components/ui/icon';
+import Cart from '@/components/Cart';
+import { useToast } from '@/hooks/use-toast';
+
+interface CartItem {
+  id: number;
+  name: string;
+  price: string;
+  priceNumber: number;
+  image: string;
+  quantity: number;
+}
 
 const Index = () => {
   const [activeSection, setActiveSection] = useState('home');
+  const [cartItems, setCartItems] = useState<CartItem[]>([]);
+  const [isCartOpen, setIsCartOpen] = useState(false);
+  const { toast } = useToast();
 
   const products = [
     {
@@ -12,6 +26,7 @@ const Index = () => {
       name: 'Cinema Camera Pro',
       category: 'Камеры',
       price: '1 250 000 ₽',
+      priceNumber: 1250000,
       image: 'https://cdn.poehali.dev/projects/280f113e-3a27-449f-a08c-85178ed5b510/files/378b5903-631b-4dbd-b23f-c28e040c3b36.jpg'
     },
     {
@@ -19,6 +34,7 @@ const Index = () => {
       name: 'Studio Light System',
       category: 'Освещение',
       price: '450 000 ₽',
+      priceNumber: 450000,
       image: 'https://cdn.poehali.dev/projects/280f113e-3a27-449f-a08c-85178ed5b510/files/c0567a54-f9bc-49b7-b332-040fcef9dbeb.jpg'
     },
     {
@@ -26,6 +42,7 @@ const Index = () => {
       name: 'Premium Lens Collection',
       category: 'Оптика',
       price: '890 000 ₽',
+      priceNumber: 890000,
       image: 'https://cdn.poehali.dev/projects/280f113e-3a27-449f-a08c-85178ed5b510/files/4ef594ab-149c-4eda-b6d3-05dded2edce9.jpg'
     }
   ];
@@ -36,13 +53,54 @@ const Index = () => {
     element?.scrollIntoView({ behavior: 'smooth' });
   };
 
+  const addToCart = (product: typeof products[0]) => {
+    setCartItems(prevItems => {
+      const existingItem = prevItems.find(item => item.id === product.id);
+      
+      if (existingItem) {
+        toast({
+          title: "Количество обновлено",
+          description: `${product.name} +1`,
+        });
+        return prevItems.map(item =>
+          item.id === product.id
+            ? { ...item, quantity: item.quantity + 1 }
+            : item
+        );
+      } else {
+        toast({
+          title: "Добавлено в корзину",
+          description: product.name,
+        });
+        return [...prevItems, { ...product, quantity: 1 }];
+      }
+    });
+    setIsCartOpen(true);
+  };
+
+  const removeFromCart = (id: number) => {
+    setCartItems(prevItems => prevItems.filter(item => item.id !== id));
+    toast({
+      title: "Удалено из корзины",
+      variant: "destructive",
+    });
+  };
+
+  const updateQuantity = (id: number, quantity: number) => {
+    setCartItems(prevItems =>
+      prevItems.map(item =>
+        item.id === id ? { ...item, quantity } : item
+      )
+    );
+  };
+
   return (
     <div className="min-h-screen bg-background text-foreground">
       <nav className="fixed top-0 w-full z-50 bg-background/95 backdrop-blur-sm border-b border-border">
         <div className="container mx-auto px-6 py-4">
           <div className="flex items-center justify-between">
             <h1 className="text-2xl font-bold text-accent">STUDIO PRO</h1>
-            <div className="flex gap-8">
+            <div className="flex items-center gap-8">
               {['home', 'catalog', 'delivery', 'contacts'].map((section) => (
                 <button
                   key={section}
@@ -57,6 +115,13 @@ const Index = () => {
                   {section === 'contacts' && 'Контакты'}
                 </button>
               ))}
+              <Cart
+                items={cartItems}
+                onRemoveItem={removeFromCart}
+                onUpdateQuantity={updateQuantity}
+                isOpen={isCartOpen}
+                onOpenChange={setIsCartOpen}
+              />
             </div>
           </div>
         </div>
@@ -104,8 +169,14 @@ const Index = () => {
                   <h3 className="text-2xl font-bold mb-4">{product.name}</h3>
                   <div className="flex items-center justify-between">
                     <span className="text-2xl font-bold text-accent">{product.price}</span>
-                    <Button variant="outline" size="sm" className="border-accent text-accent hover:bg-accent hover:text-accent-foreground">
-                      Подробнее
+                    <Button 
+                      variant="outline" 
+                      size="sm" 
+                      className="border-accent text-accent hover:bg-accent hover:text-accent-foreground"
+                      onClick={() => addToCart(product)}
+                    >
+                      <Icon name="ShoppingCart" size={16} className="mr-2" />
+                      В корзину
                     </Button>
                   </div>
                 </CardContent>
