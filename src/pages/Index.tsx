@@ -16,6 +16,7 @@ interface CartItem {
 
 const Index = () => {
   const [activeSection, setActiveSection] = useState('home');
+  const [selectedCategory, setSelectedCategory] = useState('Все');
   const [cartItems, setCartItems] = useState<CartItem[]>([]);
   const [isCartOpen, setIsCartOpen] = useState(false);
   const { toast } = useToast();
@@ -44,8 +45,62 @@ const Index = () => {
       price: '890 000 ₽',
       priceNumber: 890000,
       image: 'https://cdn.poehali.dev/projects/280f113e-3a27-449f-a08c-85178ed5b510/files/4ef594ab-149c-4eda-b6d3-05dded2edce9.jpg'
+    },
+    {
+      id: 4,
+      name: 'Pro Gimbal Stabilizer',
+      category: 'Стабилизация',
+      price: '320 000 ₽',
+      priceNumber: 320000,
+      image: 'https://cdn.poehali.dev/projects/280f113e-3a27-449f-a08c-85178ed5b510/files/06fc1e06-9ce7-45e5-be5e-8c894d7f1003.jpg'
+    },
+    {
+      id: 5,
+      name: 'Automated Backdrop System',
+      category: 'Фоны',
+      price: '280 000 ₽',
+      priceNumber: 280000,
+      image: 'https://cdn.poehali.dev/projects/280f113e-3a27-449f-a08c-85178ed5b510/files/052cb841-42e5-4c85-a615-e71555fefe70.jpg'
+    },
+    {
+      id: 6,
+      name: 'Professional Audio Kit',
+      category: 'Звук',
+      price: '195 000 ₽',
+      priceNumber: 195000,
+      image: 'https://cdn.poehali.dev/projects/280f113e-3a27-449f-a08c-85178ed5b510/files/b3be66a7-9781-42c4-8c54-009e4aa698cf.jpg'
+    },
+    {
+      id: 7,
+      name: 'Carbon Fiber Tripod',
+      category: 'Штативы',
+      price: '165 000 ₽',
+      priceNumber: 165000,
+      image: 'https://cdn.poehali.dev/projects/280f113e-3a27-449f-a08c-85178ed5b510/files/6dc8d783-7fe8-4147-91ea-a85d15be1516.jpg'
+    },
+    {
+      id: 8,
+      name: 'Reference Monitor 4K',
+      category: 'Мониторы',
+      price: '420 000 ₽',
+      priceNumber: 420000,
+      image: 'https://cdn.poehali.dev/projects/280f113e-3a27-449f-a08c-85178ed5b510/files/5317d4d3-f707-41f6-ad6f-5f576239c0ad.jpg'
+    },
+    {
+      id: 9,
+      name: 'Camera Slider Pro',
+      category: 'Движение',
+      price: '275 000 ₽',
+      priceNumber: 275000,
+      image: 'https://cdn.poehali.dev/projects/280f113e-3a27-449f-a08c-85178ed5b510/files/68304461-0bbd-492e-80fd-ca6daadbdd39.jpg'
     }
   ];
+
+  const categories = ['Все', 'Камеры', 'Освещение', 'Оптика', 'Стабилизация', 'Фоны', 'Звук', 'Штативы', 'Мониторы', 'Движение'];
+
+  const filteredProducts = selectedCategory === 'Все' 
+    ? products 
+    : products.filter(p => p.category === selectedCategory);
 
   const scrollToSection = (section: string) => {
     setActiveSection(section);
@@ -149,9 +204,25 @@ const Index = () => {
 
       <section id="catalog" className="min-h-screen py-24 bg-secondary/30">
         <div className="container mx-auto px-6">
-          <h2 className="text-5xl font-bold text-center mb-16 text-accent">Каталог оборудования</h2>
+          <h2 className="text-5xl font-bold text-center mb-12 text-accent">Каталог оборудования</h2>
+          
+          <div className="flex flex-wrap justify-center gap-3 mb-12">
+            {categories.map((category) => (
+              <Button
+                key={category}
+                variant={selectedCategory === category ? "default" : "outline"}
+                onClick={() => setSelectedCategory(category)}
+                className={selectedCategory === category 
+                  ? "bg-accent text-accent-foreground hover:bg-accent/90" 
+                  : "border-accent text-accent hover:bg-accent hover:text-accent-foreground"}
+              >
+                {category}
+              </Button>
+            ))}
+          </div>
+
           <div className="grid md:grid-cols-3 gap-8 max-w-7xl mx-auto">
-            {products.map((product, index) => (
+            {filteredProducts.map((product, index) => (
               <Card 
                 key={product.id} 
                 className="bg-card border-border overflow-hidden hover:border-accent transition-all duration-300 hover:scale-105"
